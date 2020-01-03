@@ -1,37 +1,61 @@
 #include <string>
-#include<stdlib.h>
-#include <boost/graph/adjacency_list.hpp>
-#include<iostream>
-
+#include <stdlib>
+#include <iostream> // for std::cout
+#include <utility> // for std::pair
+#include <algorithm> // for std::for_each
+#include <boost/graph>
 using namespace std;
 using namespace boost;
-typedef boost::adjacency_list<listS, vecS, undirectedS> MetroGraph;
+
+typedef property<edge_weight_t, int> EdgeWeightProperty;
+typedef adjacency_list<listS, vecS, undirectedS, no_property, EdgeWeightProperty> MetroGraph;
+
+typedef struct graph_station
+{
+  int sysid;
+  int line; //位于哪一线路
+  int id;
+} Sstation;
+
+typedef struct station
+{
+  int id;
+  string name;
+  bool istransfer; //是不是换乘站
+  int position_x, position_y;
+  vector<int> graph_st_list;
+} Station;
+
+typedef struct path
+{
+  int len; //经过的站点数量
+  vector<int> stnid; //途经站点的id
+} Path;
 
 class SearchSys
 {
  private:
-  MetroGraph mtgph;//记录地铁线路的邻接表
-  int sta_num;
-  char input_type;
-  struct station Sta[1000];//由站点组成的集合,从1开始编号
-  int line_num;//从1开始
+  MetroGraph mtgph; //站点线路图
+  vector<Station> station_list; //站点列表
+  vector<Sstation> graph_station_list; //系统站点列表
+  int get_st_id(const string& city);
+
  public:
   SearchSys();
   ~SearchSys();
-  //int Init_gph(const string& city); //从文件中加载图信息
-  int Init_gph(); //从文件中加载图信息
+  int Init_gph(const string& city); //从文件中加载图信息
   int Store_gph(const string& city); //将图信息保存到文件
-  int Find_the_route(const string& start_station, const string& end_station, int transform, string& order);  //寻找两个站点之间的最短路
-  int Traversal(const string& now_station, string& order);  //全遍历
-  int Print_line(const string&, string& order);  //打印某条线路上的站点序列
+  Path Find_the_route(const string& start_station, const string& end_station, int transform, string& order);  //寻找两个站点之间的最短路
+  Path Traversal(const string& now_station, string& order);  //全遍历
+  Path Print_line(const string&, string& order);  //打印某条线路上的站点序列
 };
 
-struct station
+int SearchSys::get_st_id(const string& city)
 {
-    int id;
-    string name;
-    int istransfer; //是不是换乘站
-    int position_x, position_y;
-    int line; //存放所属线路的编号
-};
-
+  for(int i = 0; i < len(station_list); i++)
+    {
+      if(city == station_list[i].name)
+        return i;
+    }
+  return -1;
+}
