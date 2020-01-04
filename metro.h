@@ -46,7 +46,7 @@ public:
     //int Init_gph(const string& city); //从文件中加载图信息
     int Init_gph(const string& city); //从文件中加载图信息
     int Store_gph(const string& city); //将图信息保存到文件
-    int Find_the_route(const string& start_station, const string& end_station, int transform, string& order);  //寻找两个站点之间的最短路
-    int Traversal(const string& now_station, string& order);  //全遍历
-    int Print_line(const string&, string& order);  //打印某条线路上的站点序列
+    Path Find_the_route(const string& start_station, const string& end_station, int transform, string& order);  //寻找两个站点之间的最短路
+    Path Traversal(const string& now_station, string& order);  //全遍历
+    Path Print_line(const string&, string& order);  //打印某条线路上的站点序列
 };
