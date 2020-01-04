@@ -16,11 +16,16 @@ using namespace std;
 
 SearchSys::SearchSys(const string& city)
 {
+	Same_Sta_weight = 0;
 	sta_num = 0;
 	sys_id = 0;
 	line_num = 0;
+	Station temp;
+	station_list.push_back(temp);
+	Sstation temp1;
+	graph_station_list.push_back(temp1);
 	Init_gph(city);
-	Same_Sta_weight = 0;
+	
 }
 SearchSys::~SearchSys()
 {
@@ -48,22 +53,26 @@ int SearchSys::Init_gph(const string& city)
 	int sta_id, sta_x, sta_y, Line, line_sta_num;
 	string sta_name, line_name;
 	bool transfer;
-
+	char input_type;
 	while (in >> input_type)
 	{
 		if (input_type == '#')//录入站点坐标、id、名称
 		{
 			in >> sta_id >> sta_name >> sta_x >> sta_y;
-			sta_num++;
+			sta_num++; 
 			sys_id = sta_num;//sysid同步
 			Sta_nameToNum.insert(map<string, int>::value_type(sta_name, sta_num));
-			Sta[sta_num].id = sta_id;//id = sta_num
-			Sta[sta_num].name = sta_name;
-			Sta[sta_num].position_x = sta_x;
-			Sta[sta_num].position_y = sta_y;
-			Sta[sta_num].istransfer = -1;//表明未确定
+			Station temp;
+			station_list.push_back(temp);
+			station_list[sta_num].id = sta_id;//id = sta_num
+			station_list[sta_num].name = sta_name;
+			station_list[sta_num].position_x = sta_x;
+			station_list[sta_num].position_y = sta_y;
+			station_list[sta_num].istransfer = false;//表明未确定
+			Sstation temps;
+			graph_station_list.push_back(temps);
 		}
-		else if (input_type == '%')
+		else if (input_type == '%')//上一步完成后graph_station_list数目应该和station_list一样。
 		{
 			line_num++;
 			in >> line_name >> line_sta_num;
@@ -72,27 +81,32 @@ int SearchSys::Init_gph(const string& city)
 			{
 				int temp_station_id;
 				in >> temp_station_id;//每条线的sta的id
-				if (Sta[temp_station_id].istransfer == -1)//未确定的时候id = sysid
+				if (station_list[temp_station_id].istransfer == false)//未确定的时候id = sysid
 				{
-					Sta[temp_station_id].istransfer = 0;//false
-					struct st temptrans;
-					temptrans.line = line_num;
-					temptrans.sysid = temp_station_id;
-					Sta[temp_station_id].TransferID.push_back(temptrans);
+					station_list[temp_station_id].istransfer = true;//false
+					graph_station_list[temp_station_id].id = temp_station_id;
+					graph_station_list[temp_station_id].line = Line_nameToNum[line_name];
+					graph_station_list[temp_station_id].sysid = temp_station_id;
+					Sstation temps = graph_station_list[temp_station_id];
+					station_list[temp_station_id].TransferID.push_back(temps);//将graph引用
 				}
-				else if (Sta[temp_station_id].istransfer == 0)//该站点是换乘站点
+				else if (station_list[temp_station_id].istransfer == true)//该站点是换乘站点
 				{
 					//Sta[temp_station_id].istransfer = 1;//是换乘站点
 					//新建一个站点
 					sys_id++;
-					struct st temptrans;
-					temptrans.line = line_num;
-					temptrans.sysid = sys_id;
-					Sta[temp_station_id].TransferID.push_back(temptrans);
-					int full_num = Sta[temp_station_id].TransferID.size();
+					Sstation temp;
+					temp.id = temp_station_id;
+					temp.line = Line_nameToNum[line_name];
+					temp.sysid = sys_id;
+					graph_station_list.push_back(temp);
+					Sstation temps = graph_station_list[sys_id];
+					station_list[temp_station_id].TransferID.push_back(temps);//将graph引用
+
+					int full_num = station_list[temp_station_id].TransferID.size();
 					for (int i = 0; i < full_num-1; i++)//给换乘站点之间加边
 					{
-						add_edge(Sta[temp_station_id].TransferID[i].sysid, Sta[temp_station_id].TransferID[full_num - 1].sysid, Same_Sta_weight, mtgph);
+						add_edge(station_list[temp_station_id].TransferID[i].sysid, station_list[temp_station_id].TransferID[full_num - 1].sysid, Same_Sta_weight, mtgph);
 					}
 				}
 			}
@@ -102,22 +116,22 @@ int SearchSys::Init_gph(const string& city)
 			int station_from, station_to;
 			string line_name;
 			in >> station_from >> station_to >> line_name;
-			int same_sta_from_num = Sta[station_from].TransferID.size();
+			int same_sta_from_num = station_list[station_from].TransferID.size();
 			int sta_from_sysid, sta_to_sysid;
 			for (int i = 0; i < same_sta_from_num; i++)//查找from站点的sysid
 			{
-				if (Sta[station_from].TransferID[i].line == Line_nameToNum[line_name])
+				if (station_list[station_from].TransferID[i].line == Line_nameToNum[line_name])
 				{
-					sta_from_sysid = Sta[station_from].TransferID[i].sysid;
+					sta_from_sysid = station_list[station_from].TransferID[i].sysid;
 					break;
 				}
 			}
-			int same_sta_to_num = Sta[station_to].TransferID.size();
+			int same_sta_to_num = station_list[station_to].TransferID.size();
 			for (int i = 0; i < same_sta_to_num; i++)//查找to站点的sysid
 			{
-				if (Sta[station_to].TransferID[i].line == Line_nameToNum[line_name])
+				if (station_list[station_to].TransferID[i].line == Line_nameToNum[line_name])
 				{
-					sta_to_sysid = Sta[station_to].TransferID[i].sysid;
+					sta_to_sysid = station_list[station_to].TransferID[i].sysid;
 					break;
 				}
 			}
