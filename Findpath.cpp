@@ -25,7 +25,7 @@ make_predecessor_recorder(PredecessorMap p)
   return ::record_predecessors<PredecessorMap>(p);
 }
 
-typedef graph_traits<MetroGraph>::vertex_descriptor Vertex;
+//typedef graph_traits<MetroGraph>::vertex_descriptor Vertex;
 typedef std::pair<int,int> E;
 typedef property_map<MetroGraph, vertex_index_t>::type IndexMap;
 
@@ -43,9 +43,14 @@ Path SearchSys :: Find_the_shrt_path(const string& start_station, const string& 
     throw "Don't find end_station!";
   else trg = l_it->second;
 
+  return find_spath(src, trg);
+}
+
+Path SearchSys :: find_spath(Vertex src, Vertex trg)
+{
   IndexMap index = get(vertex_index, mtgph);
   // vector for storing distance property
-  vector<int> d(num_vertices(mtgph));
+  vector<Vertex> d(num_vertices(mtgph));
   // get the first vertex
   Vertex s = station_list[src].TransferID[0].sysid;
   // invoke variant 2 of Dijkstra's algorithm
@@ -55,9 +60,9 @@ Path SearchSys :: Find_the_shrt_path(const string& start_station, const string& 
   dijkstra_shortest_paths(mtgph, s, distance_map(&d[0]).visitor(make_predecessor_recorder(&p[0])));
 
   graph_traits<MetroGraph>::vertex_iterator vi;
-  vector<int> shrt;
+  vector<Vertex> shrt;
   Path shrt_path;
-  Vertex st = trg;
+  Vertex st = station_list[trg].TransferID[0].sysid;
   int i;
   for(i = 0; p[st] != graph_traits<MetroGraph>::null_vertex(); st = p[st])
     shrt[i++] = st;

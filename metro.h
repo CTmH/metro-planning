@@ -55,8 +55,9 @@ private:
   int line_num;//从1开始
   int Same_Sta_weight;//换乘的cost
   MetroGraph& get_all_pairs_shorest_graph(const MetroGraph& origin);
+  Path find_spath(Vertex src, Vertex trg);
     public:
-     SearchSys(const string& city);
+  SearchSys(const string& city);
   ~SearchSys();
   //int Init_gph(const string& city); //从文件中加载图信息
   int Init_gph(const string& city); //从文件中加载图信息
