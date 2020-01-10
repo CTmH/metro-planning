@@ -1,4 +1,6 @@
+#include <boost/graph/dijkstra_shortest_paths.hpp>
 #include "metro.h"
+using namespace boost;
 
 template <class PredecessorMap>
 class record_predecessors : public dijkstra_visitor<>
@@ -27,15 +29,25 @@ typedef graph_traits<MetroGraph>::vertex_descriptor Vertex;
 typedef std::pair<int,int> E;
 typedef property_map<MetroGraph, vertex_index_t>::type IndexMap;
 
-Path SearchSys :: Find_the_shrt_path(const string& start_station, const string& end_station, int transform, string& order)  //寻找两个站点之间的最短路
+Path SearchSys :: Find_the_shrt_path(const string& start_station, const string& end_station)  //寻找两个站点之间的最短路
 {
-  int src = get_st_id(start_station);
-  int trg = get_st_id(end_station);
+  int src = 0, trg = 0;
+  map<string, int>::iterator l_it;
+  l_it = Sta_nameToNum.find(start_station);
+  if(l_it == Sta_nameToNum.end())
+    throw "Don't find start_station!";
+  else src = l_it->second;
+
+  l_it = Sta_nameToNum.find(end_station);
+  if(l_it == Sta_nameToNum.end())
+    throw "Don't find end_station!";
+  else trg = l_it->second;
+
   IndexMap index = get(vertex_index, mtgph);
   // vector for storing distance property
   vector<int> d(num_vertices(mtgph));
   // get the first vertex
-  Vertex s = station_list[src].graph_st_list[0];
+  Vertex s = station_list[src].TransferID[0].sysid;
   // invoke variant 2 of Dijkstra's algorithm
   //dijkstra_shortest_paths(mtgph, s, distance_map(&d[0]));
 
@@ -45,14 +57,17 @@ Path SearchSys :: Find_the_shrt_path(const string& start_station, const string& 
   graph_traits<MetroGraph>::vertex_iterator vi;
   vector<int> shrt;
   Path shrt_path;
-  for(Vertex st = trg, int i = 0; p[st] != graph_traits<Graph>::null_vertex(); st = p[st], i++)
-    shrt[i] = st;
-
-  for(int rlen = 0, int last = -1, i--; i >= 0; i--)
+  Vertex st = trg;
+  int i;
+  for(i = 0; p[st] != graph_traits<MetroGraph>::null_vertex(); st = p[st])
+    shrt[i++] = st;
+  int rlen = 0;
+  int last = -1;
+  for(i = i-1; i >= 0; i--)
     {
-      if(graph_station[shrt[i]].id != last)
-        shrt_path.stnid[rlen++] = graph_station[shrt[i]].id;
-      last = graph_station[shrt[i]].id;
+      if(graph_station_list[shrt[i]].id != last)
+        shrt_path.stnid[rlen++] = graph_station_list[shrt[i]].id;
+      last = graph_station_list[shrt[i]].id;
     }
   shrt_path.len = rlen;
   return shrt_path;
