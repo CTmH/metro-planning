@@ -1,19 +1,32 @@
-#pragma once
+#ifndef METRO_H
+#define METRO_H
 //#include"HeadFile.h"
+#include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include<iostream>
+#include <iostream> // for std::cout
+#include <utility> // for std::pair
+#include <algorithm> // for std::for_each
+#include <boost/graph/graph_traits.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/dijkstra_shortest_paths.hpp>
 using namespace std;
 using namespace boost;
 typedef property<edge_weight_t, int> EdgeWeightProperty;
-typedef boost::adjacency_list<listS, vecS, directedS, no_property,EdgeWeightProperty >MetroGraph;
+typedef boost::adjacency_list<listS, vecS, directedS, no_property, EdgeWeightProperty >MetroGraph;
+typedef MetroGraph::edge_descriptor Edge;
+typedef graph_traits<MetroGraph>::vertex_descriptor Vertex;
+typedef property_map<MetroGraph, vertex_index_t>::type VertexMap;
 static map<string, int> Line_nameToNum;//站点名字到id的映射
 static map<string, int> Sta_nameToNum;//线路名到id的映射
+
 typedef struct graph_station
 {
     int sysid;
     int line; //位于哪一线路
     int id;
 } Sstation;
+
 typedef struct station
 {
     int id;
@@ -34,19 +47,21 @@ class SearchSys
 {
 private:
     MetroGraph mtgph; //站点线路图
-    int sta_num;//站点的id
-    int sys_id;//站点的sysid
+    MetroGraph all_pairs_shorest_graph;
     vector<Station> station_list; //站点列表，从1编号
     vector<Sstation> graph_station_list; //系统站点列表，从1编号
-    int line_num;//从1开始
+    vector<vector<int> > Line_list;//二维变长数组记录每个路线的站点信息
     int Same_Sta_weight;//换乘的cost
+    MetroGraph& get_all_pairs_shorest_graph(const MetroGraph& origin);
+    Path find_spath(Vertex src, Vertex trg);
 public:
     SearchSys(const string& city);
     ~SearchSys();
     //int Init_gph(const string& city); //从文件中加载图信息
     int Init_gph(const string& city); //从文件中加载图信息
     int Store_gph(const string& city); //将图信息保存到文件
-    Path Find_the_route(const string& start_station, const string& end_station, int transform, string& order);  //寻找两个站点之间的最短路
-    Path Traversal(const string& now_station, string& order);  //全遍历
+    Path Find_the_shrt_path(const string& start_station, const string& end_station);  //寻找两个站点之间的最短路
+    Path Trave_metro(const string& src_station);  //全遍历
     Path Print_line(const string&, string& order);  //打印某条线路上的站点序列
 };
+#endif
