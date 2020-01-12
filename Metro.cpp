@@ -1,4 +1,4 @@
-﻿/*
+/*
 1.private添加
   int sta_num;
   char input_type;
@@ -17,6 +17,7 @@ using namespace std;
 SearchSys::SearchSys(const string& city)
 {
 	Same_Sta_weight = 0;
+
 	sta_num = 0;
 	sys_id = 0;
 	line_num = 0;
@@ -24,6 +25,8 @@ SearchSys::SearchSys(const string& city)
 	station_list.push_back(temp);
 	Sstation temp1;
 	graph_station_list.push_back(temp1);
+	vector <int> temp2;
+	Line_list.push_back(temp2);//使得下标和line的id对应上
 	Init_gph(city);
 	
 }
@@ -49,11 +52,11 @@ int SearchSys::Init_gph(const string& city)
 		cout << "fail to open the file." << endl;
 		return 0;
 	}
-
-	int sta_id, sta_x, sta_y, Line, line_sta_num;
+  
+	int sta_id, sta_x, sta_y, line_sta_num;
 	string sta_name, line_name;
-	bool transfer;
 	char input_type;
+	int line_num = 0, sys_id = 0, sta_num = 0;
 	while (in >> input_type)
 	{
 		if (input_type == '#')//录入站点坐标、id、名称
@@ -74,6 +77,8 @@ int SearchSys::Init_gph(const string& city)
 		}
 		else if (input_type == '%')//上一步完成后graph_station_list数目应该和station_list一样。
 		{
+
+			vector <int> this_line;//从下标0开始计数
 			line_num++;
 			in >> line_name >> line_sta_num;
 			Line_nameToNum.insert(map<string, int>::value_type(line_name, line_num));//建立从线名到线ID的映射
@@ -81,6 +86,8 @@ int SearchSys::Init_gph(const string& city)
 			{
 				int temp_station_id;
 				in >> temp_station_id;//每条线的sta的id
+
+				this_line.push_back(temp_station_id);
 				if (station_list[temp_station_id].istransfer == false)//未确定的时候id = sysid
 				{
 					station_list[temp_station_id].istransfer = true;//false
@@ -110,6 +117,7 @@ int SearchSys::Init_gph(const string& city)
 					}
 				}
 			}
+			Line_list.push_back(this_line);
 		}
 		else if (input_type == '@')//处理连线
 		{
@@ -138,6 +146,21 @@ int SearchSys::Init_gph(const string& city)
 			add_edge(sta_from_sysid, sta_to_sysid, 1, mtgph);//普通站点权重为1
 		}
 	}
+	all_pairs_shorest_graph = get_all_pairs_shorest_graph(mtgph);
+}
+Path SearchSys::Print_line(const string& station_name, string& order)
+{
+	if (Line_nameToNum.count(station_name) == 0)
+		cout << "no this key" << endl;
+	else
+	{
+		Path retur;
+		int line_id = Line_nameToNum[station_name];
+		retur.len = Line_list[line_id].size();
+		retur.stnid = Line_list[line_id];
+		return retur;
+	}
+
 }
 
 int main()
@@ -145,5 +168,5 @@ int main()
 	string city;
 	city.append("BEIJING");
 	SearchSys SYS(city);
-
+	//SYS.test();
 }

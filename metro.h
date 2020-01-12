@@ -13,57 +13,57 @@
 using namespace std;
 using namespace boost;
 typedef property<edge_weight_t, int> EdgeWeightProperty;
-typedef boost::adjacency_list<listS, vecS, directedS, no_property,EdgeWeightProperty >MetroGraph;
+typedef boost::adjacency_list<listS, vecS, directedS, no_property, EdgeWeightProperty >MetroGraph;
 typedef MetroGraph::edge_descriptor Edge;
 typedef graph_traits<MetroGraph>::vertex_descriptor Vertex;
 typedef property_map<MetroGraph, vertex_index_t>::type VertexMap;
-static map<string, int> Line_nameToNum;//Õ¾µãÃû×Öµ½idµÄÓ³Éä
-static map<string, int> Sta_nameToNum;//ÏßÂ·Ãûµ½idµÄÓ³Éä
+static map<string, int> Line_nameToNum;//ç«™ç‚¹åå­—åˆ°idçš„æ˜ å°„
+static map<string, int> Sta_nameToNum;//çº¿è·¯ååˆ°idçš„æ˜ å°„
 
 typedef struct graph_station
 {
-  int sysid;
-  int line; //Î»ÓÚÄÄÒ»ÏßÂ·
-  int id;
+    int sysid;
+    int line; //ä½äºå“ªä¸€çº¿è·¯
+    int id;
 } Sstation;
 
 typedef struct station
 {
-  int id;
-  string name;
-  bool istransfer; //ÊÇ²»ÊÇ»»³ËÕ¾
-  int position_x, position_y;
-  //int line; //´æ·ÅËùÊôÏßÂ·µÄ±àºÅ
-  vector<Sstation> TransferID;//´Ó0±àºÅ
+
+    int id;
+    string name;
+    bool istransfer; //æ˜¯ä¸æ˜¯æ¢ä¹˜ç«™
+    int position_x, position_y;
+    //int line; //å­˜æ”¾æ‰€å±çº¿è·¯çš„ç¼–å·
+    vector<Sstation> TransferID;//ä»0ç¼–å·
 }Station;
 
 typedef struct path
 {
-  int len; //¾­¹ıµÄÕ¾µãÊıÁ¿
-  vector<int> stnid; //Í¾¾­Õ¾µãµÄid
+    int len; //ç»è¿‡çš„ç«™ç‚¹æ•°é‡
+    vector<int> stnid; //é€”ç»ç«™ç‚¹çš„id
 } Path;
 
 class SearchSys
 {
 private:
-  MetroGraph mtgph; //Õ¾µãÏßÂ·Í¼
-  MetroGraph all_pairs_shorest_graph;
-  int sta_num;//Õ¾µãµÄid
-  int sys_id;//Õ¾µãµÄsysid
-  vector<Station> station_list; //Õ¾µãÁĞ±í£¬´Ó1±àºÅ
-  vector<Sstation> graph_station_list; //ÏµÍ³Õ¾µãÁĞ±í£¬´Ó1±àºÅ
-  int line_num;//´Ó1¿ªÊ¼
-  int Same_Sta_weight;//»»³ËµÄcost
-  MetroGraph& get_all_pairs_shorest_graph(const MetroGraph& origin);
-  Path find_spath(Vertex src, Vertex trg);
-    public:
-  SearchSys(const string& city);
-  ~SearchSys();
-  //int Init_gph(const string& city); //´ÓÎÄ¼şÖĞ¼ÓÔØÍ¼ĞÅÏ¢
-  int Init_gph(const string& city); //´ÓÎÄ¼şÖĞ¼ÓÔØÍ¼ĞÅÏ¢
-  int Store_gph(const string& city); //½«Í¼ĞÅÏ¢±£´æµ½ÎÄ¼ş
-  Path Find_the_shrt_path(const string& start_station, const string& end_station);  //Ñ°ÕÒÁ½¸öÕ¾µãÖ®¼äµÄ×î¶ÌÂ·
-  Path Trave_metro(const string& src_station);  //È«±éÀú
-  Path Print_line(const string&, string& order);  //´òÓ¡Ä³ÌõÏßÂ·ÉÏµÄÕ¾µãĞòÁĞ
+
+    MetroGraph mtgph; //ç«™ç‚¹çº¿è·¯å›¾
+    MetroGraph all_pairs_shorest_graph;
+    vector<Station> station_list; //ç«™ç‚¹åˆ—è¡¨ï¼Œä»1ç¼–å·
+    vector<Sstation> graph_station_list; //ç³»ç»Ÿç«™ç‚¹åˆ—è¡¨ï¼Œä»1ç¼–å·
+    vector<vector<int> > Line_list;//äºŒç»´å˜é•¿æ•°ç»„è®°å½•æ¯ä¸ªè·¯çº¿çš„ç«™ç‚¹ä¿¡æ¯
+    int Same_Sta_weight;//æ¢ä¹˜çš„cost
+    MetroGraph& get_all_pairs_shorest_graph(const MetroGraph& origin);
+    Path find_spath(Vertex src, Vertex trg);
+public:
+    SearchSys(const string& city);
+    ~SearchSys();
+    //int Init_gph(const string& city); //ä»æ–‡ä»¶ä¸­åŠ è½½å›¾ä¿¡æ¯
+    int Init_gph(const string& city); //ä»æ–‡ä»¶ä¸­åŠ è½½å›¾ä¿¡æ¯
+    int Store_gph(const string& city); //å°†å›¾ä¿¡æ¯ä¿å­˜åˆ°æ–‡ä»¶
+    Path Find_the_shrt_path(const string& start_station, const string& end_station);  //å¯»æ‰¾ä¸¤ä¸ªç«™ç‚¹ä¹‹é—´çš„æœ€çŸ­è·¯
+    Path Trave_metro(const string& src_station);  //å…¨éå†
+    Path Print_line(const string&, string& order);  //æ‰“å°æŸæ¡çº¿è·¯ä¸Šçš„ç«™ç‚¹åºåˆ—
 };
 #endif
