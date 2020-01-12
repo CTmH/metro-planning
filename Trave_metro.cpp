@@ -10,11 +10,9 @@ MetroGraph& SearchSys::get_all_pairs_shorest_graph(const MetroGraph& origin)
   property_map < MetroGraph, edge_weight_t >::type w = get(edge_weight, shortest_graph);
   VertexMap v_origin_map = get(vertex_index, origin);
   int v_size = num_vertices(origin);
-  vector < int >d(v_size, (std::numeric_limits < int >::max)());
-  int D[v_size][v_size];
-  vector<int> weight;
+  vector<vector<int>> D;
 
-  //johnson_all_pairs_shortest_paths(origin, D, distance_map(&d[0]));
+  johnson_all_pairs_shortest_paths(origin, D);
 
   for(int i = 0; i < v_size; i++)
     for(int j = 0; j < v_size; j++)
@@ -50,7 +48,7 @@ Path SearchSys::Trave_metro(const string& src_station)
           if(last != -1)
             {
               tmp = find_spath(last, graph_station_list[*itr].id);
-              vector<int>::iterator itmp = tmp.stnid;
+              vector<int>::iterator itmp = tmp.stnid.begin();
               for(itmp++; itmp != tmp.stnid.end(); itmp++)
                 travel_path.stnid[plen++] = *itmp;
             }

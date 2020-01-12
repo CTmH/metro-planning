@@ -18,7 +18,6 @@ protected:
   PredecessorMap m_predecessor;
 };
 
-
 template <class PredecessorMap> ::record_predecessors<PredecessorMap>
 make_predecessor_recorder(PredecessorMap p)
 {
@@ -59,7 +58,6 @@ Path SearchSys :: find_spath(Vertex src, Vertex trg)
   vector<Vertex> p(num_vertices(mtgph), graph_traits<MetroGraph>::null_vertex()); //the predecessor 数组
   dijkstra_shortest_paths(mtgph, s, distance_map(&d[0]).visitor(make_predecessor_recorder(&p[0])));
 
-  graph_traits<MetroGraph>::vertex_iterator vi;
   vector<Vertex> shrt;
   Path shrt_path;
   Vertex st = station_list[trg].TransferID[0].sysid;
