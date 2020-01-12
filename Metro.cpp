@@ -1,4 +1,14 @@
-﻿#include <boost/graph/adjacency_list.hpp>
+/*
+1.private添加
+  int sta_num;
+  char input_type;
+  struct station Sta[1000];//由站点组成的集合,从1开始编号
+  int line_num;
+2.修改为int Init_gph();在读取txt的时候写入站点信息。
+3. 修改Station.istransfer为int值，便于确定是否换乘
+*/
+//#include"HeadFile.h"
+#include <boost/graph/adjacency_list.hpp>
 #include"metro.h"
 #include<iostream>
 #include<fstream>
@@ -7,6 +17,10 @@ using namespace std;
 SearchSys::SearchSys(const string& city)
 {
 	Same_Sta_weight = 0;
+
+	sta_num = 0;
+	sys_id = 0;
+	line_num = 0;
 	Station temp;
 	station_list.push_back(temp);
 	Sstation temp1;
@@ -38,7 +52,7 @@ int SearchSys::Init_gph(const string& city)
 		cout << "fail to open the file." << endl;
 		return 0;
 	}
-
+  
 	int sta_id, sta_x, sta_y, line_sta_num;
 	string sta_name, line_name;
 	char input_type;
@@ -63,6 +77,7 @@ int SearchSys::Init_gph(const string& city)
 		}
 		else if (input_type == '%')//上一步完成后graph_station_list数目应该和station_list一样。
 		{
+
 			vector <int> this_line;//从下标0开始计数
 			line_num++;
 			in >> line_name >> line_sta_num;
@@ -71,6 +86,7 @@ int SearchSys::Init_gph(const string& city)
 			{
 				int temp_station_id;
 				in >> temp_station_id;//每条线的sta的id
+
 				this_line.push_back(temp_station_id);
 				if (station_list[temp_station_id].istransfer == false)//未确定的时候id = sysid
 				{
@@ -144,6 +160,7 @@ Path SearchSys::Print_line(const string& station_name, string& order)
 		retur.stnid = Line_list[line_id];
 		return retur;
 	}
+
 }
 
 int main()
