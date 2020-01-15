@@ -10,6 +10,8 @@
 //#include"HeadFile.h"
 #include <boost/graph/adjacency_list.hpp>
 #include"metro.h"
+#include<iostream>
+#include<fstream>
 using namespace std;
 map<string, int>  SearchSys::Line_nameToNum;
 map<string, int>  SearchSys::Sta_nameToNum;
@@ -60,6 +62,10 @@ int SearchSys::Init_gph(const string& city)
           sys_id = sta_num;//sysid同步
           Sta_nameToNum.insert(map<string, int>::value_type(sta_name, sta_num));
           Station temp;
+          temp.id = 0;
+          temp.istransfer = false;
+          temp.position_y = 0;
+          temp.position_x = 0;
           station_list.push_back(temp);
           station_list[sta_num].id = sta_id - 1;//id = sta_num
           station_list[sta_num].name = sta_name;
@@ -67,6 +73,9 @@ int SearchSys::Init_gph(const string& city)
           station_list[sta_num].position_y = sta_y;
           station_list[sta_num].istransfer = false;//表明未确定
           Sstation temps;
+          temps.id = 0;
+          temps.sysid = 0;
+          temps.line = 0;
           graph_station_list.push_back(temps);
           sta_num++;
 		}
@@ -78,7 +87,7 @@ int SearchSys::Init_gph(const string& city)
           in >> line_name >> line_sta_num;
           Line_nameToNum.insert(map<string, int>::value_type(line_name, line_num));//建立从线名到线ID的映射
           line_num++;
-          for (int i = 0; i < line_sta_num; i++)//将每个line的sta放入sta_num
+          for (int j = 0; j < line_sta_num; j++)//将每个line的sta放入sta_num
 			{
               int temp_station_id;
               in >> temp_station_id;//每条线的sta的id
@@ -118,7 +127,6 @@ int SearchSys::Init_gph(const string& city)
       else if (input_type == '@')//处理连线
 		{
           int station_from, station_to;
-          string line_name;
           in >> station_from >> station_to >> line_name;
           station_from -= 1; station_to -= 1;
           int same_sta_from_num = station_list[station_from].TransferID.size();
@@ -162,3 +170,62 @@ Path SearchSys::Print_line(const string& station_name, string& order)
   return retur;
 }
 */
+void SearchSys::save_path(Path& p, const string& filename)
+{
+  fstream f(filename, ios::out);
+  if(f.bad())
+	{
+      cout << "打开文件出错" << endl;
+      throw "Can't open file";
+	}
+  for (vector<int>::iterator it = p.stnid.begin(); it != p.stnid.end(); it++)
+    f << station_list[*it].name << endl;
+  f.close();
+}
+
+void SearchSys::save_path(Path *&p, const string& filename, int path_num)
+{
+  fstream f(filename, ios::out);
+  if(f.bad())
+	{
+      cout << "打开文件出错" << endl;
+      throw "Can't open file";
+	}
+  for(int i = 0; i < path_num; i++)
+    {
+      f << '#' << i << endl;
+      for (vector<int>::iterator it = p[i].stnid.begin(); it != p[i].stnid.end(); it++)
+        f << station_list[*it].name << endl;
+      f << endl;
+    }
+  f.close();
+}
+
+void SearchSys::print_path(Path& p)
+{
+  vector<int>::iterator it = p.stnid.begin();
+  for (; it != p.stnid.end(); it++)
+    cout << station_list[*it].name << " -> ";
+  cout << "end" << endl;
+}
+
+int SearchSys::Find_line(const string& station_name, Path* &find_line_list)
+{
+  int st = 0, line_id = 0, line_num = 0;
+  map<string, int>::iterator l_it;
+  l_it = Sta_nameToNum.find(station_name);
+  if (l_it == Sta_nameToNum.end())
+    throw "Don't find station!";
+  else st = l_it->second;
+
+  line_num = station_list[st].TransferID.size();
+  find_line_list = new Path[line_num];
+  vector<Sstation>::iterator itr = station_list[st].TransferID.begin();
+  for(int i = 0; itr != station_list[st].TransferID.end(); itr++, i++)
+    {
+      line_id = itr->line;
+      find_line_list[i].stnid = Line_list[line_id];
+      find_line_list[i].len = Line_list[line_id].size();
+    }
+  return line_num;
+}
