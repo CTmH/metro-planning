@@ -8,7 +8,7 @@ void SearchSys::save_path(Path& p, const string& filename)
       cout << "打开文件出错" << endl;
       throw "Can't open file";
 	}
-  for (vector<int>::iterator it = p.stnid.begin(); it != p.stnid.end(); it++)
+  for (vector<int>::iterator it = p.stnid.begin(); it != p.stnid.end(); ++it)
     f << station_list[*it].name << endl;
   f.close();
 }
@@ -24,7 +24,7 @@ void SearchSys::save_path(Path *&p, const string& filename, int path_num)
   for(int i = 0; i < path_num; i++)
     {
       f << '#' << i << endl;
-      for (vector<int>::iterator it = p[i].stnid.begin(); it != p[i].stnid.end(); it++)
+      for (vector<int>::iterator it = p[i].stnid.begin(); it != p[i].stnid.end(); ++it)
         f << station_list[*it].name << endl;
       f << endl;
     }
@@ -34,7 +34,7 @@ void SearchSys::save_path(Path *&p, const string& filename, int path_num)
 void SearchSys::print_path(Path& p)
 {
   vector<int>::iterator it = p.stnid.begin();
-  for (; it != p.stnid.end(); it++)
+  for (; it != p.stnid.end(); ++it)
     cout << station_list[*it].name << " -> ";
   cout << "end" << endl;
 }

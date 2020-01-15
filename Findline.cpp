@@ -17,7 +17,7 @@ Path SearchSys::Find_line_with_name(const string& linename)
 
 int SearchSys::Find_line(const string& station_name, Path* &find_line_list)
 {
-  int st = 0, line_id = 0, line_num = 0;
+  int st = 0, line_num = 0;
   map<string, int>::iterator l_it;
   l_it = Sta_nameToNum.find(station_name);
   if (l_it == Sta_nameToNum.end())
@@ -27,7 +27,7 @@ int SearchSys::Find_line(const string& station_name, Path* &find_line_list)
   line_num = station_list[st].TransferID.size();
   find_line_list = new Path[line_num];
   vector<Sstation>::iterator itr = station_list[st].TransferID.begin();
-  for(int i = 0; itr != station_list[st].TransferID.end(); itr++, i++)
+  for(int line_id, i = 0; itr != station_list[st].TransferID.end(); ++itr, ++i)
     {
       line_id = itr->line;
       find_line_list[i].stnid = Line_list[line_id];

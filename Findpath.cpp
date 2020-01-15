@@ -6,7 +6,7 @@ template <class PredecessorMap>
 class record_predecessors : public dijkstra_visitor<>
 {
 public:
-  record_predecessors(PredecessorMap p)
+  record_predecessors(PredecessorMap& p)
     : m_predecessor(p) { }
 
   template <class Edge, class Graph>
@@ -48,7 +48,7 @@ Path SearchSys::Find_the_shrt_path(const string& start_station, const string& en
 
 Path SearchSys::find_spath(Vertex src, Vertex trg)
 {
-  IndexMap index = get(vertex_index, mtgph);
+  //IndexMap index = get(vertex_index, mtgph);
   // vector for storing distance property
   vector<Vertex> d(num_vertices(mtgph));
   // get the first vertex
@@ -65,12 +65,12 @@ Path SearchSys::find_spath(Vertex src, Vertex trg)
   int i;
   for (i = 0; p[st] != graph_traits<MetroGraph>::null_vertex(); st = p[st])
     shrt.push_back(st);
-  int rlen = 0;
+  //int rlen = 0;
   int last = -1;
   //for(vector<Vertex>::iterator itr = shrt.begin(); itr != shrt.end(); itr++)
   //cout << station_list[graph_station_list[*itr].id].name << " ->";
   //cout << endl;
-  for(vector<Vertex>::reverse_iterator itr = shrt.rbegin(); itr != shrt.rend(); itr++)
+  for(vector<Vertex>::reverse_iterator itr = shrt.rbegin(); itr != shrt.rend(); ++itr)
     {
       if (graph_station_list[*itr].id != last)
         shrt_path.stnid.push_back(graph_station_list[*itr].id);

@@ -33,6 +33,7 @@ int main(int argc,char *argv[])
               cout << err << endl;
               return 0;
             }
+          ss.print_path(ans);
           ss.save_path(ans, "shortest_path.txt");
         }
       else return 0;
@@ -48,6 +49,7 @@ int main(int argc,char *argv[])
           cout << err << endl;
           return 0;
         }
+      ss.print_path(ans);
       ss.save_path(ans, "travel.txt");
     }
   else if(op == "-l")
@@ -77,6 +79,7 @@ int main(int argc,char *argv[])
           cout << err << endl;
           return 0;
         }
+      ss.print_path(ans);
       ss.save_path(ans, "line_with_num.txt");
     }
   cout << "Finish" <<endl;

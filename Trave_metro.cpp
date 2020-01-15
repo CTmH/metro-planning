@@ -7,7 +7,7 @@ using namespace boost;
 void SearchSys::get_all_pairs_shorest_graph()
 {
   MetroGraph& shortest_graph = *(new MetroGraph);
-  property_map < MetroGraph, edge_weight_t >::type w = get(edge_weight, shortest_graph);
+  //property_map < MetroGraph, edge_weight_t >::type w = get(edge_weight, shortest_graph);
   VertexMap v_origin_map = get(vertex_index, mtgph);
   int v_size = num_vertices(mtgph);
   int D[500][500];
@@ -63,7 +63,7 @@ Path SearchSys::Trave_metro(const string& src_station)
                 travel_path.stnid.push_back(tmp.stnid[i]);
               */
               vector<int>::iterator itmp = tmp.stnid.begin();
-              for (; itmp != tmp.stnid.end(); itmp++)
+              for (; itmp != tmp.stnid.end(); ++itmp)
                 {
                   if(graph_station_list[*itmp].id != tmp_last)
                     travel_path.stnid.push_back(*itmp);
