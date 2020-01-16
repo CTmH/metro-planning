@@ -2,6 +2,79 @@
 
 int main(int argc,char *argv[])
 {
+  string op;
+  int cost;
+  Path ans;
+  //无输入参数
+  if(argc == 1)
+    {
+      cout << "Input city name:" << endl;
+      string city_name;
+      cin >> city_name;
+      cout << "Input transfer cost:" << endl;
+      cin >> cost;
+      cout << "Waiting..." << endl;
+      SearchSys metro(city_name, cost);
+      string src,trg;
+      op = "";
+      while(op != "q")
+        {
+          cout << "Input your command:" << endl << "f: Find shortest path" << endl
+               << "t: Travel around Metro" << endl << "s: Station in line" << endl
+               << "q: Quit" << endl;
+          cin >> op;
+          if(op == "f")
+            {
+              cout << "From which station:" << endl;
+              cin >> src;
+              cout << "To witch station:" << endl;
+              cin >> trg;
+              try
+                {
+                  ans = metro.Find_the_shrt_path(src,trg);
+                }
+              catch(char const* err)
+                {
+                  cout << err << endl;
+                  continue;
+                }
+              metro.print_path(ans);
+            }
+          else if(op == "t")
+            {
+              cout << "From which station:" << endl;
+              cin >> src;
+              try
+                {
+                  ans = metro.Trave_metro(src);
+                }
+              catch(char const* err)
+                {
+                  cout << err << endl;
+                  continue;
+                }
+              metro.print_path(ans);
+            }
+          else if(op == "s")
+            {
+              cout << "Line name:" << endl;
+              cin >> src;
+              try
+                {
+                  ans = metro.Find_line_with_name(src);
+                }
+              catch(char const* err)
+                {
+                  cout << err << endl;
+                  continue;
+                }
+              metro.print_path(ans);
+            }
+
+        }
+      return 0;
+    }
+  //有输入参数
   if(argc < 6 || argc > 7)
     {
       cout << "Wrong arg!" << endl;
@@ -15,11 +88,10 @@ int main(int argc,char *argv[])
       cout << "Please set cost!"<< endl;
       return 0;
     }
-  int cost = atoi(argv[3]);
-  string op = arg[4];
+  cost = atoi(argv[3]);
+  op = arg[4];
   cout << "loading..." << endl;
   SearchSys ss(arg[1], cost);
-  Path ans;
   if(op == "-s")
     {
       if(argc == 7)
@@ -54,7 +126,7 @@ int main(int argc,char *argv[])
     }
   else if(op == "-l")
     {
-      Path *pllist;
+      Path *pllist = NULL;
       int list_num = 0;
       try
         {

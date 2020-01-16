@@ -56,6 +56,7 @@ private:
   vector<Station> station_list; //站点列表，从0编号
   vector<Sstation> graph_station_list; //系统站点列表，从0编号
   vector<vector<int> > Line_list;//二维变长数组记录每个路线的站点信息
+  vector<vector<Vertex>*> dijkstra_tree_list; //存储最小生成树
   static map<string, int> Line_nameToNum;//站点名字到id的映射
   static map<string, int> Sta_nameToNum;//线路名到id的映射
   int Same_Sta_weight;//换乘的cost
@@ -74,6 +75,5 @@ public:
   void save_path(Path& p, const string& filename);
   void save_path(Path *&p, const string& filename, int path_num);
   int Find_line(const string& station_name, Path* &line_list);
-  void dfs();
 };
 #endif

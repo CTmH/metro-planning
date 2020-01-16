@@ -23,10 +23,12 @@ SearchSys::SearchSys(const string& city, int trans_cost = 0)
 
   Init_gph(city);
 
+  dijkstra_tree_list.insert(dijkstra_tree_list.begin(), graph_station_list.size(), NULL);
 }
 SearchSys::~SearchSys()
 {
-
+  for (vector<vector<Vertex>*>::iterator itr = dijkstra_tree_list.begin(); itr != dijkstra_tree_list.end(); ++itr)
+    delete *itr;
 }
 int SearchSys::Init_gph(const string& city)
 {
