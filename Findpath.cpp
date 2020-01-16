@@ -6,7 +6,7 @@ template <class PredecessorMap>
 class record_predecessors : public dijkstra_visitor<>
 {
 public:
-  record_predecessors(PredecessorMap& p)
+  record_predecessors(const PredecessorMap& p)
     : m_predecessor(p) { }
 
   template <class Edge, class Graph>
@@ -19,7 +19,7 @@ protected:
 };
 
 template <class PredecessorMap> ::record_predecessors<PredecessorMap>
-make_predecessor_recorder(PredecessorMap p)
+make_predecessor_recorder(const PredecessorMap& p)
 {
   return ::record_predecessors<PredecessorMap>(p);
 }
@@ -55,9 +55,14 @@ Path SearchSys::find_spath(Vertex src, Vertex trg)
   Vertex s = station_list[src].TransferID[0].sysid;
   // invoke variant 2 of Dijkstra's algorithm
   //dijkstra_shortest_paths(mtgph, s, distance_map(&d[0]));
-
+  vector<Vertex>* ptree = dijkstra_tree_list[s];
   vector<Vertex> p(num_vertices(mtgph), graph_traits<MetroGraph>::null_vertex()); //the predecessor 数组
-  dijkstra_shortest_paths(mtgph, s, distance_map(&d[0]).visitor(make_predecessor_recorder(&p[0])));
+  if(ptree == NULL)
+    {
+      dijkstra_shortest_paths(mtgph, s, distance_map(&d[0]).visitor(make_predecessor_recorder(&p[0])));
+      dijkstra_tree_list[s] = new vector<Vertex>(p);
+    }
+  else p = *ptree;
 
   vector<Vertex> shrt;
   Path shrt_path;
