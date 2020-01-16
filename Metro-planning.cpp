@@ -82,6 +82,6 @@ int main(int argc,char *argv[])
       ss.print_path(ans);
       ss.save_path(ans, "line_with_num.txt");
     }
-  cout << "Finish" <<endl;
+  cout << "Path has been saved" <<endl;
   return 0;
 }

@@ -10,8 +10,6 @@
 //#include"HeadFile.h"
 #include <boost/graph/adjacency_list.hpp>
 #include"metro.h"
-#include<iostream>
-#include<fstream>
 using namespace std;
 map<string, int>  SearchSys::Line_nameToNum;
 map<string, int>  SearchSys::Sta_nameToNum;
@@ -170,62 +168,3 @@ Path SearchSys::Print_line(const string& station_name, string& order)
   return retur;
 }
 */
-void SearchSys::save_path(Path& p, const string& filename)
-{
-  fstream f(filename, ios::out);
-  if(f.bad())
-	{
-      cout << "打开文件出错" << endl;
-      throw "Can't open file";
-	}
-  for (vector<int>::iterator it = p.stnid.begin(); it != p.stnid.end(); it++)
-    f << station_list[*it].name << endl;
-  f.close();
-}
-
-void SearchSys::save_path(Path *&p, const string& filename, int path_num)
-{
-  fstream f(filename, ios::out);
-  if(f.bad())
-	{
-      cout << "打开文件出错" << endl;
-      throw "Can't open file";
-	}
-  for(int i = 0; i < path_num; i++)
-    {
-      f << '#' << i << endl;
-      for (vector<int>::iterator it = p[i].stnid.begin(); it != p[i].stnid.end(); it++)
-        f << station_list[*it].name << endl;
-      f << endl;
-    }
-  f.close();
-}
-
-void SearchSys::print_path(Path& p)
-{
-  vector<int>::iterator it = p.stnid.begin();
-  for (; it != p.stnid.end(); it++)
-    cout << station_list[*it].name << " -> ";
-  cout << "end" << endl;
-}
-
-int SearchSys::Find_line(const string& station_name, Path* &find_line_list)
-{
-  int st = 0, line_id = 0, line_num = 0;
-  map<string, int>::iterator l_it;
-  l_it = Sta_nameToNum.find(station_name);
-  if (l_it == Sta_nameToNum.end())
-    throw "Don't find station!";
-  else st = l_it->second;
-
-  line_num = station_list[st].TransferID.size();
-  find_line_list = new Path[line_num];
-  vector<Sstation>::iterator itr = station_list[st].TransferID.begin();
-  for(int i = 0; itr != station_list[st].TransferID.end(); itr++, i++)
-    {
-      line_id = itr->line;
-      find_line_list[i].stnid = Line_list[line_id];
-      find_line_list[i].len = Line_list[line_id].size();
-    }
-  return line_num;
-}

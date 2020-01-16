@@ -6,7 +6,7 @@ template <class PredecessorMap>
 class record_predecessors : public dijkstra_visitor<>
 {
 public:
-  record_predecessors(PredecessorMap& p)
+  record_predecessors(const PredecessorMap& p)
     : m_predecessor(p) { }
 
   template <class Edge, class Graph>
@@ -19,7 +19,7 @@ protected:
 };
 
 template <class PredecessorMap> ::record_predecessors<PredecessorMap>
-make_predecessor_recorder(PredecessorMap p)
+make_predecessor_recorder(const PredecessorMap& p)
 {
   return ::record_predecessors<PredecessorMap>(p);
 }
