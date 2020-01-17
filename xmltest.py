@@ -5,6 +5,7 @@ import codecs
 from tkinter import messagebox
 import time
 import os
+import subprocess
 # 全局变量
 # 线路树，储存线路是否是环线、车站名字、换乘车站名字、颜色
 line_dic = {}
@@ -84,9 +85,49 @@ def decode_xml(path):
                 station_list.append(tmp_station)
             line_dic[lname]['station_name_list'].append(sname)
 
+    # for key in line_dic:
+    #     print(key)
+    #     print(line_dic[key])
+
+    print()
     for tmp_station in station_list:
         if len(tmp_station.lname_list) > 1:
             transfer_station_list.append(tmp_station)
+
+    print()
+
+    # 对所有站点信息的记录
+    sub_way_info_path = 'subway_station_line_info.txt'
+    subway_station_line_info_text = codecs.open(sub_way_info_path, 'w')
+    for tmp_station in station_list:
+        output = "#" + " " + tmp_station.sname + " " + str(tmp_station.mapx) + " " + str(tmp_station.mapy) + "\n"
+        subway_station_line_info_text.write(output)
+
+    # 加一行 过度到对线路的记录
+    subway_station_line_info_text.write('\n')
+    for key in line_dic:
+        output = "%" + " " + key + " " + str(len(line_dic[key]['station_name_list'])) + " "
+        for sname in line_dic[key]['station_name_list']:
+            output += sname
+            output += ' '
+        output += '\n'
+        subway_station_line_info_text.write(output)
+
+    # 加一行 过度到对站点的记录
+    subway_station_line_info_text.write("\n")
+    for key in line_dic:
+        for i in range(0,len(line_dic[key]['station_name_list'])-1):
+            now_name = line_dic[key]['station_name_list'][i]
+            next_name = line_dic[key]['station_name_list'][i+1]
+            output = '@' + " " + now_name + " " + next_name + " " + key + "\n"
+            subway_station_line_info_text.write(output)
+        if line_dic[key]['is_loop']:
+            length = len(line_dic[key]['station_name_list'])
+            now_name = line_dic[key]['station_name_list'][length-1]
+            next_name = line_dic[key]['station_name_list'][0]
+            output = '@' + " " + now_name + " " + next_name + " " + key + "\n"
+            subway_station_line_info_text.write(output)
+        subway_station_line_info_text.write("\n")
 
     for tmp_station in transfer_station_list:
         tmp_lname_list = tmp_station.lname_list
@@ -110,68 +151,61 @@ window.geometry('1920x1080')
 e1 = tk.Entry(window)
 e2 = tk.Entry(window)
 l1 = tk.Label(window, text="出发地", font=('Aerial', 15))
-l1.place(x=1000, y=10)
+l1.place(x=1000, y=180)
 l2 = tk.Label(window, text="目的地",font=('Aerial', 15))
-l2.place(x=1000, y = 40)
-e1.place(x=1080,y = 10)
-e2.place(x=1080,y = 40)
+l2.place(x=1000, y = 210)
+e1.place(x=1080,y = 180)
+e2.place(x=1080,y = 210)
 # 根据题目要求查找从某个起点车站到某个终点车站的路线
 def find_a_way_by_cost():
     # 按站寻路为0
     sign = 0
     init_color()
+    cost = str(C1)
     start_name = str(e1.get())
     end_name = str(e2.get())
 
+    #########检查输入正确性
+    flag = False
+    for tmp_station in station_list:
+        if tmp_station.sname == start_name or tmp_station.sname == end_name:
+            flag = True
+            break
+    if flag == False:
+        messagebox.showwarning(title="错误！", message="站点输入有误！")
+        return
+
+    # # 将命令写给文件
+    # cmd_path = "command.txt"
+    # cmd_file = codecs.open(cmd_path, 'w'  )
+    # command = "/c" + " " + "0" + "\n" + "/s" + " " + start_name + " " + end_name + " " + "\n"
+    # cmd_file.write(command)
+    # cmd_file.close()
+    # string_para = "字符参数"
+    int_para = 10
+    # os.system(r'./Metroplan "BEIJING" ' + r'"-c" ' + r'"1" '+ r'"-s" '+ r'"苹果园" '+ r'"东四" ')  ##注意每个参数之间必须用空格隔开
+    ##########
+    # python 调用C++
+    # cpptest = "subway.exe"
+    # if os.path.exists(cpptest):
+    #     f = os.popen(cpptest)
+    #     f.close()
+    # else:
+    #     print("C++ exe doesn't exist!")
+    ##########
+
+    child = subprocess.Popen(['./Metroplan', 'BEIJING','-c', cost, '-s', start_name, end_name])  # 创建一个子进 程，进程名为child，执行操作ping -c 4 www.baidu.com
+    child.wait()  # 子进程等待
     ##########
     # python对文件进行处理
     tmp_sname_list = []
-    input_path = 'station_order.txt'
+    input_path = 'shortest_path.txt'
     input_file = codecs.open(input_path, 'r')
     i = 0
     output = ''
     tmp_sname_color_dic = {}
     for line in input_file.readlines():
         output += line
-        if i == 0:
-            i += 1
-            continue
-        info = line.strip().split()
-        tmp_sname_list.append(info[0])
-
-    # 动态显示线路
-    show_line(tmp_sname_list)
-    # 更改右侧的结果
-    T.delete(0.0,tk.END)
-    T.insert('insert', output)
-button = tk.Button(window,
-                   text="不考虑换乘代价",
-                   width=15,
-                   height=2,
-                   command=find_a_way_by_cost,
-                   activebackground = '#C4C4C4',
-                   background="#D5D5D5")
-button.place(x=1000, y=70)
-# 后期得更改button1的函数
-def find_a_way_by_effort():
-    # 按站寻路为0
-    sign = 1
-    init_color()
-    start_name = str(e1.get())
-    end_name = str(e2.get())
-
-    # python对文件进行处理
-    tmp_sname_list = []
-    input_path = 'station_order.txt'
-    input_file = codecs.open(input_path, 'r'  )
-    i = 0
-    output = ''
-    tmp_sname_color_dic = {}
-    for line in input_file.readlines():
-        output += line
-        if i == 0:
-            i += 1
-            continue
         info = line.strip().split()
         tmp_sname_list.append(info[0])
 
@@ -180,29 +214,39 @@ def find_a_way_by_effort():
     # 动态显示线路
     show_line(tmp_sname_list)
     # 更改右侧的结果
-    T.delete(0.0, tk.END)
+    T.delete(0.0,tk.END)
     T.insert('insert', output)
-button1 = tk.Button(window,
-                    text="考虑换乘代价",
-                    width=15,
-                    height=2,
-                    command=find_a_way_by_effort,
-                    activebackground = '#C4C4C4',
-                    background = '#D5D5D5')
-button1.place(x=1120, y=70)
+button = tk.Button(window,
+                   text="查询最短路",
+                   width=15,
+                   height=2,
+                   command=find_a_way_by_cost,
+                   activebackground = '#C4C4C4',
+                   background="#D5D5D5")
+button.place(x=1000, y=250)
+
+C1 = tk.Checkbutton(window, text = "考虑换乘代价",
+                font=('Aerial', 15),
+                fg="blue",
+                relief = "raised",
+                onvalue = '3',
+                offvalue = '0',
+                )
+C1.place(x=1000,y=110)
+
 
 # 右侧文本框的排版
 T = tk.Text(window,
             height=60,
-            width=30)
-T.place(x=1270, y=5)
+            width=40)
+T.place(x=1370, y=5)
 T.insert('insert',"欢迎使用北京地铁线路查询系统")
 
 # 按照线路名寻找的排版
 e3 = tk.Entry(window)
-e3.place(x=1000, y=210)
+e3.place(x=1000, y=370)
 l3 = tk.Label(window, text="输入线路名", font=('Aerial', 15))
-l3.place(x=1000, y=170)
+l3.place(x=1000, y=330)
 
 # 根据题目要求，输入线路名字，可动态显示此站点中所有车站，在UI界面上显示，
 def show_line(tmp_sname_list):
@@ -224,11 +268,33 @@ def show_line(tmp_sname_list):
 def print_line():
     # 颜色复原
     init_color()
+    cost = str(C1)
     line_name = e3.get()
+    if line_name not in line_dic.keys():
+        messagebox.showwarning(title="错误！",
+                            message="输入内容应该在以下范围： Line1\Line2\Line4/Daxing\Line5\Line8\Line9\Line10\Line13\Line15\BatongLine\ChangpingLine\YizhuangLine\FangshanLine\AirportExpress")
+    # 将命令写给文件
+    # cmd_path = "command.txt"
+    # cmd_file = codecs.open(cmd_path, 'w')
+    # command = "/l" + " " + line_name + "\n"
+    # cmd_file.write(command)
+    # cmd_file.close()
 
+    ##########
+    # python 调用C++
+    # cpptest = "subway.exe"
+    # if os.path.exists(cpptest):
+    #     f = os.popen(cpptest)
+    #     f.close()
+    # else:
+    #     print("C++ exe doesn't exist!")
+    ##########
+    child = subprocess.Popen(['./Metroplan', 'BEIJING', '-c', cost, '-ln', line_name,
+                              ])  # 创建一个子进 程，进程名为child，执行操作ping -c 4 www.baidu.com
+    child.wait()  # 子进程等待
     # python对文件进行处理
     tmp_sname_list = []
-    input_path = 'Line_station.txt'
+    input_path = 'line_with_num.txt'
     input_file = codecs.open(input_path, 'r')
     i = 0
     output = ''
@@ -252,24 +318,53 @@ button2 = tk.Button(window,
                     height=2,
                     command=print_line,
                     activebackground = '#C4C4C4')
-button2.place(x=1000, y=240)
+button2.place(x=1000, y=410)
 
 # 按照初始站的名字来遍历整个地铁站
 l3 = tk.Label(window, text="输入站点", font=('Aerial', 15))
-l3.place(x=1000, y=340)
+l3.place(x=1000, y=500)
 e4 = tk.Entry(window)
-e4.place(x=1090, y=340)
+e4.place(x=1090, y=500)
 # 寻找一条从当前站点遍历并回到自身的路径
 def search_a_way():
     # 按站寻路为0
     # 恢复原来的颜色
     init_color()
+    cost = str(C1)
     start_name = str(e4.get())
 
+    flag = False
+    for tmp_station in station_list:
+        if tmp_station.sname == start_name:
+            flag = True
+            break
+    if flag == False:
+        messagebox.showwarning(title="错误！", message="站点名称有误！")
+        return
+
+    # 将命令写给文件
+    # cmd_path = "command.txt"
+    # cmd_file = codecs.open(cmd_path, 'w'  )
+    # command = "/t" + " " + start_name + " " + "\n"
+    # cmd_file.write(command)
+    # cmd_file.close()
+
+    ##########
+    # python 调用C++
+    # cpptest = "subway.exe"
+    # if os.path.exists(cpptest):
+    #     f = os.popen(cpptest)
+    #     f.close()
+    # else:
+    #     print("C++ exe doesn't exist!")
+    ##########
+    child = subprocess.Popen(['./Metroplan', 'BEIJING', '-c', cost, '-t', start_name,
+                              ])  # 创建一个子进 程，进程名为child，执行操作ping -c 4 www.baidu.com
+    child.wait()  # 子进程等待
     ##########
     # python对文件进行处理
     tmp_sname_list = []
-    input_path = 'station_order.txt'
+    input_path = 'travel.txt'
     input_file = codecs.open(input_path, 'r'  )
     # for line in input_file.readlines():
     #     print(line)
@@ -297,7 +392,7 @@ button4 = tk.Button(window, text="查询遍历站点",
                     height=2,
                     command=search_a_way,
                     activebackground = '#C4C4C4')
-button4.place(x=1000, y=370)
+button4.place(x=1000, y=550)
 
 def init_color():
     for (station, l) in station_label_list:
