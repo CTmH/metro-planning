@@ -3,6 +3,7 @@ import subwaystation
 import tkinter as tk
 import codecs
 from tkinter import messagebox
+from tkinter import StringVar, IntVar
 import time
 import subprocess
 # 全局变量
@@ -107,8 +108,8 @@ decode_xml(xml_path)
 window = tk.Tk()
 window.title("地铁路线图")
 window.geometry('1920x1080')
-
 # 寻找最短路线的排版
+num = 0;
 e1 = tk.Entry(window)
 e2 = tk.Entry(window)
 l1 = tk.Label(window, text="出发地", font=('Aerial', 15))
@@ -121,7 +122,6 @@ e2.place(x=1080,y = 210)
 v1 = tk.IntVar()
 def find_a_way_by_cost():
     # 按站寻路为0
-    sign = 0
     init_color()
     if (v1.get()==1):
         cost = "3"
@@ -195,8 +195,10 @@ l3.place(x=1000, y=330)
 
 # 根据后端返回的信息，按顺序在地图上显示出来，并使用红色表示经历过的，蓝色表示正在经历的
 def show_line(tmp_sname_list):
+    num = 0
     for tmp_sname in tmp_sname_list:
-        last_one = -1
+        num  = num +1
+        NUM["text"] = "经过的站点数："+str(num)
         for (tmp_station, l) in station_label_list:
             if tmp_sname == tmp_station.sname:
                 l['bg'] = 'blue'
@@ -206,7 +208,8 @@ def show_line(tmp_sname_list):
                 l['bg'] = 'red'
                 # ls.update()
                 break
-
+NUM = tk.Label(window, text="经过的站点数：0" ,font=('Aerial', 15))
+NUM.place(x = 1,y=1)
 def print_line():
     # 颜色复原
     init_color()
