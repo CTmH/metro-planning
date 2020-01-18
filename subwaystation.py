@@ -1,13 +1,10 @@
 class station:
-    def __init__(self, staid, name, sname, mapx, mapy, pos, lat, lng, lname, station_cnt):
+    def __init__(self, staid, name, sname, mapx, mapy, lname, station_cnt):
         self.staid = staid
         self.name = name
         self.sname = sname
         self.mapx = mapx
         self.mapy = mapy
-        self.pos = pos
-        self.lat = lat
-        self.lng = lng
 
         # 不知道是否是transfer_station
         self.is_transfer = False
