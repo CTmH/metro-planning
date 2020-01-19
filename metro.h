@@ -60,8 +60,8 @@ private:
   static map<string, int> Line_nameToNum;//站点名字到id的映射
   static map<string, int> Sta_nameToNum;//线路名到id的映射
   int Same_Sta_weight;//换乘的cost
-  void get_all_pairs_shorest_graph();
-  Path find_spath(Vertex src, Vertex trg);
+  void get_all_pairs_shorest_graph(); //获得最短路径图
+  Path find_spath(Vertex src, Vertex trg); //两点最短路径
 public:
   SearchSys(const string& city, int trans_cost);
   ~SearchSys();
@@ -72,8 +72,8 @@ public:
   Path Trave_metro(const string& src_station);  //全遍历
   Path Find_line_with_name(const string& linename); //根据线路名称查询线路站点
   void print_path(Path& p);  //打印某条线路上的站点序列
-  void save_path(Path& p, const string& filename);
-  void save_path(Path *&p, const string& filename, int path_num);
-  int Find_line(const string& station_name, Path* &line_list);
+  void save_path(Path& p, const string& filename); //保存路径到文件
+  void save_path(Path *&p, const string& filename, int path_num); //保存多条
+  int Find_line(const string& station_name, Path* &line_list); //根据站点名称获取相关线路上的站点
 };
 #endif
