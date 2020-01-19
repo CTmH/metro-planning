@@ -1,14 +1,14 @@
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include "metro.h"
 using namespace boost;
-
+//通过继承和重写visitor来获得最小生成树
 template <class PredecessorMap>
 class record_predecessors : public dijkstra_visitor<>
 {
 public:
   record_predecessors(const PredecessorMap& p)
     : m_predecessor(p) { }
-
+  //每当一条边松弛后会调用下面的函数
   template <class Edge, class Graph>
   void edge_relaxed(Edge e, Graph& g) {
     // set the parent of the target(e) to source(e)
@@ -24,13 +24,13 @@ make_predecessor_recorder(const PredecessorMap& p)
   return ::record_predecessors<PredecessorMap>(p);
 }
 
-//typedef graph_traits<MetroGraph>::vertex_descriptor Vertex;
 typedef std::pair<int, int> E;
-typedef property_map<MetroGraph, vertex_index_t>::type IndexMap;
+typedef property_map<MetroGraph, vertex_index_t>::type IndexMap; //图中点的索引
 
 Path SearchSys::Find_the_shrt_path(const string& start_station, const string& end_station)  //寻找两个站点之间的最短路
 {
   int src = 0, trg = 0;
+  //处理错误的站点名称
   map<string, int>::iterator l_it;
   l_it = Sta_nameToNum.find(start_station);
   if (l_it == Sta_nameToNum.end())
@@ -68,16 +68,15 @@ Path SearchSys::find_spath(Vertex src, Vertex trg)
   Path shrt_path;
   Vertex st = station_list[trg].TransferID[0].sysid;
   int i;
+  //从目标点沿着最小生成树的边回到起点并记录路径
   for (i = 0; p[st] != graph_traits<MetroGraph>::null_vertex(); st = p[st])
     shrt.push_back(st);
-  //int rlen = 0;
+  
   int last = -1;
-  //for(vector<Vertex>::iterator itr = shrt.begin(); itr != shrt.end(); itr++)
-  //cout << station_list[graph_station_list[*itr].id].name << " ->";
-  //cout << endl;
+  //返回整理格式后的路径
   for(vector<Vertex>::reverse_iterator itr = shrt.rbegin(); itr != shrt.rend(); ++itr)
     {
-      if (graph_station_list[*itr].id != last)
+      if (graph_station_list[*itr].id != last) //去掉重复站点
         shrt_path.stnid.push_back(graph_station_list[*itr].id);
       last = graph_station_list[*itr].id;
     }
