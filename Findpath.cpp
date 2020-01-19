@@ -25,7 +25,6 @@ make_predecessor_recorder(const PredecessorMap& p)
 }
 
 typedef std::pair<int, int> E;
-typedef property_map<MetroGraph, vertex_index_t>::type IndexMap; //图中点的索引
 
 Path SearchSys::Find_the_shrt_path(const string& start_station, const string& end_station)  //寻找两个站点之间的最短路
 {
@@ -48,13 +47,11 @@ Path SearchSys::Find_the_shrt_path(const string& start_station, const string& en
 
 Path SearchSys::find_spath(Vertex src, Vertex trg)
 {
-  //IndexMap index = get(vertex_index, mtgph);
   // vector for storing distance property
   vector<Vertex> d(num_vertices(mtgph));
   // get the first vertex
   Vertex s = station_list[src].TransferID[0].sysid;
   // invoke variant 2 of Dijkstra's algorithm
-  //dijkstra_shortest_paths(mtgph, s, distance_map(&d[0]));
   vector<Vertex>* ptree = dijkstra_tree_list[s];
   vector<Vertex> p(num_vertices(mtgph), graph_traits<MetroGraph>::null_vertex()); //the predecessor 数组
   if(ptree == NULL)
