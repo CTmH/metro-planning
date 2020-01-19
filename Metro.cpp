@@ -1,13 +1,3 @@
-﻿/*
-  1.private添加
-  int sta_num;
-  char input_type;
-  struct station Sta[1000];//由站点组成的集合,从1开始编号
-  int line_num;
-  2.修改为int Init_gph();在读取txt的时候写入站点信息。
-  3. 修改Station.istransfer为int值，便于确定是否换乘
-*/
-//#include"HeadFile.h"
 #include <boost/graph/adjacency_list.hpp>
 #include"metro.h"
 using namespace std;
@@ -32,7 +22,6 @@ SearchSys::~SearchSys()
 }
 int SearchSys::Init_gph(const string& city)
 {
-  //transform(city.begin(), city.end(), city.begin(), ::toupper);
   fstream in;
   if (city == "BEIJING")//选择城市
 	{
@@ -104,7 +93,7 @@ int SearchSys::Init_gph(const string& city)
 				}
               else if (station_list[temp_station_id].istransfer == true)//该站点是换乘站点
 				{
-                  //Sta[temp_station_id].istransfer = 1;//是换乘站点
+                  
                   //新建一个站点
                   sys_id++;
                   Sstation temp;
@@ -154,19 +143,3 @@ int SearchSys::Init_gph(const string& city)
   get_all_pairs_shorest_graph();
   return 0;
 }
-/*
-Path SearchSys::Print_line(const string& station_name, string& order)
-{
-  Path retur;
-  if (Line_nameToNum.count(station_name) == 0)
-    cout << "no this key" << endl;
-  else
-	{
-      int line_id = Line_nameToNum[station_name];
-      retur.len = Line_list[line_id].size();
-      retur.stnid = Line_list[line_id];
-      return retur;
-	}
-  return retur;
-}
-*/
